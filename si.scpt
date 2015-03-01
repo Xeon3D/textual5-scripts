@@ -12,7 +12,7 @@
 property ClientName : name of current application
 property scriptname : "si"
 property ScriptDescription : "A System Information Script for Textual 5"
-property ScriptHomepage : "https://github.com/Xeon3D/si/raw/master/si5.scpt"
+property ScriptHomepage : "https://github.com/Xeon3D/si/raw/master/si.scpt"
 property ScriptAuthor : "Xeon3D"
 property ScriptContributors : "emsquare, pencil"
 property ScriptAuthorHomepage : "http://www.github.com/Xeon3D/"
@@ -72,15 +72,6 @@ on textualcmd(cmd)
 	set FItalic to (ASCII character 1)
 	set NewLine to (ASCII character 10)
 	
-	if (cmd contains "simple") or (Simple is true or Simple is "True") then
-		set UsedColor to ""
-		set FreeColor to ""
-		set SeparatorColor to ""
-		set CWhite to ""
-		set FBold to ""
-		set FItalic to ""
-	end if
-	
 	--- User Options --
 	
 	-- This regards showing the final delimiter.
@@ -109,6 +100,18 @@ on textualcmd(cmd)
 			return msg
 		end try
 	end try
+	
+	if (cmd contains "simple") or (Simple is true or Simple is "True") then
+		set UsedColor to ""
+		set FreeColor to ""
+		set SeparatorColor to ""
+		set CWhite to ""
+		set FBold to ""
+		set FItalic to ""
+		set CGreen to ""
+		set CRed to ""
+	end if
+
 	
 	-- This sets the item delimiter.
 	set ItemDelimiter to " • "
@@ -176,7 +179,7 @@ on textualcmd(cmd)
 	end if
 	
 	if cmd is "version" then
-		set msg to "Script Version: " & scriptname & space & CurrentVersion & "(Codename: " & CodeName & ") for " & ClientName & " by " & ScriptAuthor & " with contributions from " & ScriptContributors & ". Get it @ " & ScriptHomepage
+		set msg to "Script Version: " & scriptname & space & CurrentVersion & " (Codename: " & CodeName & ") for " & ClientName & " by " & ScriptAuthor & " with contributions from " & ScriptContributors & ". Get it @ " & ScriptHomepage
 		return msg
 	end if
 	
@@ -209,7 +212,7 @@ on textualcmd(cmd)
 		end if
 	end if
 	
-	if cmd is "Simple toggle" then
+	if cmd is "simple toggle" then
 		if Simple is "True" then
 			do shell script "defaults write xeon3d.si Simple False"
 			return "/echo The script " & FBold & "won't remove" & FBold & " the formatting from the output."
@@ -218,7 +221,7 @@ on textualcmd(cmd)
 			return "/echo The script " & FBold & "will remove" & FBold & " the formatting from the output."
 		end if
 	end if
-		
+	
 	if cmd is "help" then
 		set msg to ¬
 			"/echo " & FBold & "Usage:" & FBold & " /" & scriptname & " [labels] [simple]" & NewLine & ¬
@@ -226,7 +229,7 @@ on textualcmd(cmd)
 			"/echo Possible labels:" & NewLine & "/echo mac, cpu, speed, cap, cache, fsb, temp, ram, bar, mem, hd, gpu, res, audio, power, osx, osxbuild, osxarch, kernel, kerneltag, uptime, client." & NewLine & ¬
 			"/echo There are also some special labels: 'about' shows some info about the script; " & NewLine & ¬
 			"/echo The 'simple' label makes the script output without any formatting (colors, bold, etc...); " & NewLine & ¬
-			"/echo The 'update' label updates the script and the 'version' label displays the current version."
+			"/echo The 'version' label outputs the current version and some information to the current channel/private conversation."
 		return msg
 	end if
 	
