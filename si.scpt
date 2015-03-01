@@ -59,9 +59,6 @@ on textualcmd(cmd)
 	-- Defines the path to the Mac Models plist (also used by the /sysinfo plugin)
 	set MachinesPlist to the quoted form of (TextualPath & "Contents/Resources/Extensions/SystemProfiler.bundle/Contents/Resources/MacintoshModels.plist")
 	
-	-- Defines the path to Textual's Info.plist.
-	set InfoPlist to TextualPath & "Contents/Info.plist"
-	
 	-- Defines Text Formatting
 	
 	--- Initializes the Simple variable.
@@ -144,7 +141,6 @@ on textualcmd(cmd)
 		set ViewKernelTag to false
 		set ViewUptime to true
 		set ViewClient to true
-		set ViewClientBuild to false
 		set ViewScriptVersion to true
 	else
 		---- Checks which options the user supplied at runtime and acts accordingly.
@@ -172,9 +168,6 @@ on textualcmd(cmd)
 		set ViewKernelTag to (cmd contains "kerneltag")
 		set ViewUptime to (cmd contains "uptime")
 		set ViewClient to (cmd contains "client")
-		if ViewClient then
-			set ViewClientBuild to (cmd contains "clientbuild")
-		end if
 		set ViewScriptVersion to (cmd contains "script")
 	end if
 	
@@ -633,13 +626,7 @@ on textualcmd(cmd)
 	
 	--Client
 	if ViewClient then
-		set msg to msg & FBold & "Client: " & FBold & ClientName & " " & ClientVersion
-		if ViewClientBuild then
-			-- set TextualBuild to do shell script "cp " & TextualPath & "Contents/Info.plist /tmp/| plutil -convert xml1 /tmp/Info.plist | defaults read /tmp/Info.plist TXBundleBuildCodeName"
-			set TextualBuild to do shell script "defaults read " & InfoPlist & " | grep DTXcodeBuild | awk -F\\\" {'print $2'}"
-			set msg to msg & " [" & TextualBuild & "]"
-		end if
-		set msg to msg & ItemDelimiter
+		set msg to msg & FBold & "Client: " & FBold & ClientName & " " & ClientVersion & ItemDelimiter
 	end if
 	
 	--Script Version
