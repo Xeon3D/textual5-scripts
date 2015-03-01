@@ -1,4 +1,4 @@
--- si - A System Information Script for Textual
+-- si - A System Information Script for Textual 5
 -- Coded by Xeon3D
 -- Very loosely based on KSysInfo for Linkinus by KanadaKid
 
@@ -11,11 +11,11 @@
 -- |Properties| --
 property ClientName : name of current application
 property scriptname : "si"
-property ScriptDescription : "A System Information Script for Textual"
+property ScriptDescription : "A System Information Script for Textual 5"
 property ScriptHomepage : "https://github.com/Xeon3D/si/raw/master/si5.scpt"
 property ScriptAuthor : "Xeon3D"
 property ScriptContributors : "emsquare, pencil"
-property ScriptAuthorHomepage : "http://www.emupt.com"
+property ScriptAuthorHomepage : "http://www.github.com/Xeon3D/"
 property CurrentVersion : "0.6.0"
 property CodeName : "Live Long and Prosper!"
 property SupportChannel : "irc://irc.freenode.org/#textual"
@@ -132,11 +132,11 @@ on textualcmd(cmd)
 		set ViewDisplay to true
 		set ViewGFXBus to false
 		set ViewResolutions to true
-		set ViewAudio to true
-		set ViewPower to false
+		set ViewAudio to false
+		set ViewPower to true
 		set ViewOSXVersion to true
 		set ViewOSXArch to true
-		set ViewOSXBuild to true
+		set ViewOSXBuild to false
 		set ViewKernel to false
 		set ViewKernelTag to false
 		set ViewUptime to true
@@ -218,68 +218,7 @@ on textualcmd(cmd)
 			return "/echo The script " & FBold & "will remove" & FBold & " the formatting from the output."
 		end if
 	end if
-	
-	--Network
-	if cmd contains "network" then
-		if cmd's last word is "network" then
-			return "/debug Error. You need to input the interface name (en0 for ethernet or en1 for wifi usually) aka /si5 network en1 (for wifi stats)"
-		end if
-		set adapter to cmd's last word
-		set InitialTraffic to do shell script "netstat -b -I " & adapter & " | tail -n1 | awk {'print $(NF-1),$(NF-4)'}"
-		set AppleScript's text item delimiters to space
-		set InitialUploadedBytes to (text item 1 of InitialTraffic) / 1048576
-		set InitialDownloadedBytes to (text item 2 of InitialTraffic) / 1048576
-		set AppleScript's text item delimiters to ""
-		delay 1
-		set FinalTraffic to do shell script "netstat -b -I " & adapter & " | tail -n1 | awk {'print $(NF-1),$(NF-4)'}"
-		set AppleScript's text item delimiters to space
-		set FinalUploadedBytes to (text item 1 of FinalTraffic) / 1048576
-		set FinalDownloadedBytes to (text item 2 of FinalTraffic) / 1048576
-		set AppleScript's text item delimiters to ""
-		set DownloadedTraffic to roundThis(FinalDownloadedBytes / 1024, 3)
-		set UploadedTraffic to roundThis(FinalUploadedBytes / 1024, 3)
-		if DownloadedTraffic > 1 then
-			set DownloadedTrafficUnit to "GB"
-			set DownloadedTraffic to roundThis(DownloadedTraffic, 2) & DownloadedTrafficUnit
-		else
-			set DownloadedTrafficUnit to "MB"
-			set DownloadedTraffic to (DownloadedTraffic * 1000 as integer) & DownloadedTrafficUnit
-		end if
-		if UploadedTraffic > 1 then
-			set UploadedTrafficUnit to "GB"
-			set UploadedTraffic to roundThis(UploadedTraffic, 2) & UploadedTrafficUnit
-		else
-			set UploadedTrafficUnit to "MB"
-			set UploadedTraffic to (UploadedTraffic * 1000 as integer) & UploadedTrafficUnit
-		end if
-		set DifferenceBetweenUploadedBytes to (FinalUploadedBytes - InitialUploadedBytes)
-		set DifferenceBetweenDownloadedBytes to (FinalDownloadedBytes - InitialDownloadedBytes)
-		set DownloadSpeed to roundThis(DifferenceBetweenDownloadedBytes, 3)
-		set UploadSpeed to roundThis(DifferenceBetweenUploadedBytes, 3)
-		if DownloadSpeed > 1 then
-			set DownloadSpeedUnit to "MB/s"
-			set DownloadSpeed to roundThis(DownloadSpeed, 2)
-			set DownloadSpeed to DownloadSpeed & DownloadSpeedUnit
-		else
-			set DownloadSpeedUnit to "KB/s"
-			set DownloadSpeed to DownloadSpeed * 1000 as integer
-			set DownloadSpeed to DownloadSpeed & DownloadSpeedUnit
-		end if
-		if UploadSpeed > 1 then
-			set UploadedSpeedUnit to "MB/s"
-			set UploadSpeed to roundThis(UploadSpeed, 2)
-			set UploadSpeed to UploadSpeed & UploadedSpeedUnit
-		else
-			set UploadedSpeedUnit to "KB/s"
-			set UploadSpeed to UploadSpeed * 1000 as integer
-			set UploadSpeed to UploadSpeed & UploadedSpeedUnit
-		end if
-		set msg to FBold & "Net:" & FBold & " [" & adapter & "] D:" & DownloadSpeed & " [" & DownloadedTraffic & "] - U:" & UploadSpeed & " [" & UploadedTraffic & "]" & ItemDelimiter
-		return msg
-	end if
-	
-	
-	
+		
 	if cmd is "help" then
 		set msg to ¬
 			"/echo " & FBold & "Usage:" & FBold & " /" & scriptname & " [labels] [simple]" & NewLine & ¬
