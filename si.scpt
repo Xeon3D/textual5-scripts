@@ -9,14 +9,13 @@
 
 -- | SCRIPT START | --
 -- |Properties| --
-property ClientName : name of current application
 property scriptname : "si"
 property ScriptDescription : "A System Information Script for Textual 5"
 property ScriptHomepage : "https://github.com/Xeon3D/si/raw/master/si.scpt"
 property ScriptAuthor : "Xeon3D"
 property ScriptContributors : "emsquare, pencil"
 property ScriptAuthorHomepage : "http://www.github.com/Xeon3D/"
-property CurrentVersion : "0.6.0"
+property CurrentVersion : "0.6.1"
 property CodeName : "Live Long and Prosper!"
 property SupportChannel : "irc://irc.freenode.org/#textual"
 
@@ -50,14 +49,11 @@ property SeparatorColor : COrange
 on textualcmd(cmd)
 	-- |Variables| --
 	
+	-- Defines the name of the application that's running si
+	set ClientName to name of current application
+	
 	-- Defines the version of Textual where it's being run from.
 	set ClientVersion to version of application ClientName
-	
-	-- Defines the POSIX path to the "Textual" application
-	set TextualPath to POSIX path of (path to application id "com.codeux.irc.textual5")
-	
-	-- Defines the path to the Mac Models plist (also used by the /sysinfo plugin)
-	set MachinesPlist to the quoted form of (TextualPath & "Contents/Resources/Extensions/SystemProfiler.bundle/Contents/Resources/MacintoshModels.plist")
 	
 	-- Defines Text Formatting
 	
@@ -278,22 +274,22 @@ on textualcmd(cmd)
 	if ViewCPU then
 		set NRofCPUs to do shell script "sysctl -n hw.packages"
 		set CPUModel to do shell script "sysctl -n machdep.cpu.brand_string"
-		set CPUModel to my removetext(CPUModel, "(R)")
-		set CPUModel to my removetext(CPUModel, "(TM)")
-		set CPUModel to my removetext(CPUModel, "Processor")
-		set CPUModel to my removetext(CPUModel, " CPU")
-		set CPUModel to my removetext(CPUModel, "GHz")
-		set CPUModel to my removetext(CPUModel, "  ")
-		set CPUModel to my cutforward(CPUModel, "@")
-		if CPUModel contains "Core2" then
-			set CPUModel to my removetext(CPUModel, "Core2")
-			set CPUModel to my removetext(CPUModel, "Intel ")
-			set CPUModel to "Intel Core 2" & CPUModel
+		set CPUModelFixed to my removetext(CPUModel, "(R)")
+		set CPUModelFixed to my removetext(CPUModelFixed, "(TM)")
+		set CPUModelFixed to my removetext(CPUModelFixed, "Processor")
+		set CPUModelFixed to my removetext(CPUModelFixed, " CPU")
+		set CPUModelFixed to my removetext(CPUModelFixed, "GHz")
+		set CPUModelFixed to my removetext(CPUModelFixed, "  ")
+		set CPUModelFixed to my cutforward(CPUModelFixed, "@")
+		if CPUModelFixed contains "Core2" then
+			set CPUModelFixed to my removetext(CPUModelFixed, "Core2")
+			set CPUModelFixed to my removetext(CPUModelFixed, "Intel ")
+			set CPUModelFixed to "Intel Core 2" & CPUModelFixed
 		end if
 		if NRofCPUs is "1" then
-			set msg to msg & FBold & "CPU: " & FBold & CPUModel
+			set msg to msg & FBold & "CPU: " & FBold & CPUModelFixed
 		else
-			set msg to msg & FBold & "CPU: 2x " & FBold & CPUModel
+			set msg to msg & FBold & "CPU: 2x " & FBold & CPUModelFixed
 		end if
 		
 		
@@ -312,7 +308,7 @@ on textualcmd(cmd)
 			set extfeatures to do shell script "sysctl -n machdep.cpu.extfeatures"
 			set msg to msg & " ["
 			if features contains "HT" then
-				set msg to msg & "" & "/HT"
+				set msg to msg & "" & "HT"
 			end if
 			if extfeatures contains "VMX" then
 				set msg to msg & "" & "/VMX"
@@ -337,8 +333,7 @@ on textualcmd(cmd)
 		
 		--L2 Cache
 		if ViewCPUCache then
-			set coreicheck to do shell script "sysctl machdep.cpu.brand_string"
-			if coreicheck contains "Core(TM) i" then
+			if cpumodel contains "Core(TM) i" then
 				set cpucache to do shell script "sysctl -n hw.l3cachesize"
 				set msg to msg & FBold & " L3: " & FBold & (cpucache / 1048576 as integer) & "MB"
 			else
