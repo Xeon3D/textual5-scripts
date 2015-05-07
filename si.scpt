@@ -11,12 +11,12 @@
 -- |Properties| --
 property scriptname : "si"
 property ScriptDescription : "A System Information Script for Textual 5"
-property ScriptHomepage : "https://raw.githubusercontent.com/Xeon3D/textual5-scripts/master/si.scpt"
+property ScriptHomepage : "https://github.com/Xeon3D/si/raw/master/si.scpt"
 property ScriptAuthor : "Xeon3D"
 property ScriptContributors : "emsquare, pencil"
 property ScriptAuthorHomepage : "http://www.github.com/Xeon3D/"
-property CurrentVersion : "0.6.2"
-property CodeName : "The April Version"
+property CurrentVersion : "0.6.3"
+property CodeName : "The Fixed April Version"
 property SupportChannel : "irc://irc.freenode.org/#textual"
 
 ---  Colors
@@ -104,7 +104,7 @@ on textualcmd(cmd)
 		set CGreen to ""
 		set CRed to ""
 	end if
-
+	
 	
 	-- This sets the item delimiter.
 	set ItemDelimiter to " • "
@@ -333,7 +333,7 @@ on textualcmd(cmd)
 		
 		--L2 Cache
 		if ViewCPUCache then
-			if cpumodel contains "Core(TM) i" then
+			if CPUModel contains "Core(TM) i" then
 				set cpucache to do shell script "sysctl -n hw.l3cachesize"
 				set msg to msg & FBold & " L3: " & FBold & (cpucache / 1048576 as integer) & "MB"
 			else
@@ -379,6 +379,8 @@ on textualcmd(cmd)
 		set TotalSpace to ""
 		set FreeSpace to ""
 		repeat with volume in volumesList
+			--		set diskTotals to "1000211607552
+			--460070924288"
 			set diskTotals to do shell script "diskutil info " & the quoted form of volume & " | awk '/Total Size|Volume Free Space/' | awk -F':' {'print $2'} | tr -d ' ' | awk -F'(' {'print $2'} | awk -F'B' {'print $1'}"
 			set TotalSpaceD to roundThis((the first paragraph of diskTotals as integer) / 1.0E+9, 1)
 			set FreeSpaceD to roundThis((the second paragraph of diskTotals as integer) / 1.0E+9, 1)
@@ -387,20 +389,24 @@ on textualcmd(cmd)
 			set UsedSpace to TotalSpace - FreeSpace
 			
 			if TotalSpace ≥ 1000 then
+				set TotalSpaceBar to TotalSpace
 				set TotalSpace to roundThis(TotalSpace / 1000, 1)
 				set TotalSpaceUnit to "TB"
 			else
+				set TotalSpaceBar to TotalSpace
 				set TotalSpaceUnit to "GB"
 			end if
 			if UsedSpace ≥ 1000 then
+				set UsedSpaceBar to UsedSpace
 				set UsedSpace to roundThis(UsedSpace / 1000, 1)
 				set UsedSpaceUnit to "TB"
 			else
+				set UsedSpaceBar to UsedSpace
 				set UsedSpaceUnit to "GB"
 			end if
 		end repeat
-		set UsedHDDBar to round (((TotalSpace - FreeSpace) / TotalSpace) * 100) / 10 as integer
-		set msg to msg & FBold & "HDD: " & FBold & (TotalSpace - FreeSpace) & UsedSpaceUnit & "/" & TotalSpace & TotalSpaceUnit
+		set UsedHDDBar to round (((UsedSpaceBar) / TotalSpaceBar) * 100) / 10 as integer
+		set msg to msg & FBold & "HDD: " & FBold & (UsedSpace) & UsedSpaceUnit & "/" & TotalSpace & TotalSpaceUnit
 		if ViewBars then
 			set OutputBar to MakeBars(UsedHDDBar)
 			set msg to msg & " " & OutputBar
