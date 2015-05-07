@@ -11,7 +11,7 @@
 -- |Properties| --
 property scriptname : "si"
 property ScriptDescription : "A System Information Script for Textual 5"
-property ScriptHomepage : "https://github.com/Xeon3D/si/raw/master/si.scpt"
+property ScriptHomepage : "https://raw.githubusercontent.com/Xeon3D/textual5-scripts/master/si.scpt"
 property ScriptAuthor : "Xeon3D"
 property ScriptContributors : "emsquare, pencil"
 property ScriptAuthorHomepage : "http://www.github.com/Xeon3D/"
