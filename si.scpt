@@ -15,8 +15,8 @@ property ScriptHomepage : "https://raw.githubusercontent.com/Xeon3D/textual5-scr
 property ScriptAuthor : "Xeon3D"
 property ScriptContributors : "emsquare, pencil"
 property ScriptAuthorHomepage : "http://www.github.com/Xeon3D/"
-property CurrentVersion : "0.6.1"
-property CodeName : "Live Long and Prosper!"
+property CurrentVersion : "0.6.2"
+property CodeName : "The April Version"
 property SupportChannel : "irc://irc.freenode.org/#textual"
 
 ---  Colors
@@ -371,37 +371,34 @@ on textualcmd(cmd)
 	--HDD
 	if ViewDisk then
 		tell application "System Events"
-			-- List every real disk / volume
-			set volumesList to (name of every disk whose local volume is true and ejectable is false) as list
+			set volumesList to (name of every disk whose local volume is true and ejectable is false and format is Mac OS Extended format) as list
 			if (count of volumesList) is less than 1 then
 				return "Error returning Hard Disk space values, please contact the author @ xeon4d@gmail.com"
 			end if
-			set TotalSpace to ""
-			set FreeSpace to ""
-			-- I'm guessing that for a computer to have OS X installed it HAS to have a > 1GB hdd installed.
-			set TotalSpaceUnit to "GB"
-			-- get total capacity and free space for all the disks
-			repeat with volume in volumesList
-				set VolumeName to (volume as string)
-				try
-					set TotalSpace to TotalSpace + (round ((capacity of disk VolumeName) / 1048576))
-					set FreeSpace to FreeSpace + (round ((free space of disk VolumeName) / 1048576))
-				end try
-			end repeat
 		end tell
-		-- Add appropriate unit suffix depending on disk size
-		if FreeSpace > 999999 then
-			set FreeSpace to roundThis(FreeSpace / 1048576, 2)
-			set FreeSpaceUnit to "TB"
-		else if FreeSpace > 999 then
-			set FreeSpace to roundThis(FreeSpace / 1024, 2)
-			set FreeSpaceUnit to "GB"
-		else
-			set FreeSpaceUnit to "MB"
-		end if
-		set TotalSpace to roundThis(TotalSpace / 1024, 2)
-		set UsedSpace to TotalSpace - FreeSpace
-		set UsedSpaceUnit to "GB"
+		set TotalSpace to ""
+		set FreeSpace to ""
+		repeat with volume in volumesList
+			set diskTotals to do shell script "diskutil info " & the quoted form of volume & " | awk '/Total Size|Volume Free Space/' | awk -F':' {'print $2'} | tr -d ' ' | awk -F'(' {'print $2'} | awk -F'B' {'print $1'}"
+			set TotalSpaceD to roundThis((the first paragraph of diskTotals as integer) / 1.0E+9, 1)
+			set FreeSpaceD to roundThis((the second paragraph of diskTotals as integer) / 1.0E+9, 1)
+			set TotalSpace to TotalSpace + TotalSpaceD
+			set FreeSpace to FreeSpace + FreeSpaceD
+			set UsedSpace to TotalSpace - FreeSpace
+			
+			if TotalSpace ≥ 1000 then
+				set TotalSpace to roundThis(TotalSpace / 1000, 1)
+				set TotalSpaceUnit to "TB"
+			else
+				set TotalSpaceUnit to "GB"
+			end if
+			if UsedSpace ≥ 1000 then
+				set UsedSpace to roundThis(UsedSpace / 1000, 1)
+				set UsedSpaceUnit to "TB"
+			else
+				set UsedSpaceUnit to "GB"
+			end if
+		end repeat
 		set UsedHDDBar to round (((TotalSpace - FreeSpace) / TotalSpace) * 100) / 10 as integer
 		set msg to msg & FBold & "HDD: " & FBold & (TotalSpace - FreeSpace) & UsedSpaceUnit & "/" & TotalSpace & TotalSpaceUnit
 		if ViewBars then
