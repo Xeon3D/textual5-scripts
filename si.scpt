@@ -15,8 +15,8 @@ property ScriptHomepage : "https://raw.githubusercontent.com/Xeon3D/textual5-scr
 property ScriptAuthor : "Xeon3D"
 property ScriptContributors : "emsquare, pencil"
 property ScriptAuthorHomepage : "http://www.github.com/Xeon3D/"
-property CurrentVersion : "0.6.3"
-property CodeName : "The Fixed April Version"
+property CurrentVersion : "0.6.4"
+property CodeName : "The Updater Returns"
 property SupportChannel : "irc://irc.freenode.org/#textual"
 
 ---  Colors
@@ -44,7 +44,7 @@ property FreeColor : CGreen
 property SeparatorColor : COrange
 
 -- | DEBUG COMMAND | --
--- set cmd to ""
+--set cmd to ""
 
 on textualcmd(cmd)
 	-- |Variables| --
@@ -108,6 +108,28 @@ on textualcmd(cmd)
 	
 	-- This sets the item delimiter.
 	set ItemDelimiter to " • "
+	
+	if cmd contains "update" then
+		set latestVersion to do shell script "curl -o /tmp/siversion https://raw.githubusercontent.com/Xeon3D/textual5-scripts/master/siversion | cat /tmp/siversion"
+		set latestScriptlocation to "https://raw.githubusercontent.com/Xeon3D/textual5-scripts/master/si.scpt"
+		set scriptLocation to the quoted form of (the POSIX path of (path to library folder from user domain) & "Application Scripts/com.codeux.irc.textual5/si.scpt")
+		if latestVersion > CurrentVersion then
+			try
+				do shell script "curl -o " & scriptLocation & " " & latestScriptlocation
+				set CheckUpdate to do shell script "cat " & scriptLocation & " | grep 'property CurrentVersion'"
+				if CheckUpdate contains latestVersion then
+					return "/echo Script Updated Sucessfully. Previous Version: " & CurrentVersion & ". CurrentVersion: " & latestVersion
+				end if
+			on error
+				return "/echo Error checking for the latest version."
+			end try
+			
+		else if latestVersion < CurrentVersion then
+			return "/echo You're running a newer version than the one publically available. Your version: " & CurrentVersion & " Latest Public Version: " & latestVersion
+		else
+			return "/echo You're running the latest public version."
+		end if
+	end if
 	
 	if cmd is "all" then
 		set cmd to "mac cpu speed cap cache ram bar disk gpu bus res audio power osx osxbuild osxarch kernel kerneltag uptime client clientbuild script"
@@ -655,9 +677,6 @@ on textualcmd(cmd)
 		set msg1 to characters 1 thru -4 of msg1 as string
 		set msg to msg1 & return & msg2
 	end if
-	
-	-- Debug
-	--return msg & "[" & (count of characters of msg) & "]"
 	
 	return msg
 	
