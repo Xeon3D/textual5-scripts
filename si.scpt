@@ -15,7 +15,7 @@ property ScriptHomepage : "https://raw.githubusercontent.com/Xeon3D/textual5-scr
 property ScriptAuthor : "Xeon3D"
 property ScriptContributors : "emsquare, pencil"
 property ScriptAuthorHomepage : "http://www.github.com/Xeon3D/"
-property CurrentVersion : "0.6.4"
+property CurrentVersion : "0.6.5"
 property CodeName : "The Updater Returns"
 property SupportChannel : "irc://irc.freenode.org/#textual"
 
@@ -392,10 +392,11 @@ on textualcmd(cmd)
 	
 	--HDD
 	if ViewDisk then
+		set isSSD to do shell script "diskutil info /dev/rdisk0 | grep 'Solid State' | awk {'print $(NF)'}"
 		tell application "System Events"
 			set volumesList to (name of every disk whose local volume is true and ejectable is false and format is Mac OS Extended format) as list
 			if (count of volumesList) is less than 1 then
-				return "Error returning Hard Disk space values, please contact the author @ xeon4d@gmail.com"
+				return "/debug Error returning Hard Disk space values, please contact the author @ xeon4d@gmail.com"
 			end if
 		end tell
 		set TotalSpace to ""
@@ -428,7 +429,11 @@ on textualcmd(cmd)
 			end if
 		end repeat
 		set UsedHDDBar to round (((UsedSpaceBar) / TotalSpaceBar) * 100) / 10 as integer
-		set msg to msg & FBold & "HDD: " & FBold & (UsedSpace) & UsedSpaceUnit & "/" & TotalSpace & TotalSpaceUnit
+		if isSSD is "No" then
+			set msg to msg & FBold & "HDD: " & FBold & (UsedSpace) & UsedSpaceUnit & "/" & TotalSpace & TotalSpaceUnit
+		else
+			set msg to msg & FBold & "SSD: " & FBold & (UsedSpace) & UsedSpaceUnit & "/" & TotalSpace & TotalSpaceUnit
+		end if
 		if ViewBars then
 			set OutputBar to MakeBars(UsedHDDBar)
 			set msg to msg & " " & OutputBar
