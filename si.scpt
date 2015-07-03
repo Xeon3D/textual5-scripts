@@ -15,8 +15,8 @@ property ScriptHomepage : "https://raw.githubusercontent.com/Xeon3D/textual5-scr
 property ScriptAuthor : "Xeon3D"
 property ScriptContributors : "emsquare, pencil"
 property ScriptAuthorHomepage : "http://www.github.com/Xeon3D/"
-property CurrentVersion : "0.6.5"
-property CodeName : "The Updater Returns"
+property CurrentVersion : "0.6.6"
+property CodeName : "The Updater Returns and is fixed..."
 property SupportChannel : "irc://irc.freenode.org/#textual"
 
 ---  Colors
@@ -110,22 +110,27 @@ on textualcmd(cmd)
 	set ItemDelimiter to " • "
 	
 	if cmd contains "update" then
-		set latestVersion to do shell script "curl -o /tmp/siversion https://raw.githubusercontent.com/Xeon3D/textual5-scripts/master/siversion | cat /tmp/siversion"
-		set latestScriptlocation to "https://raw.githubusercontent.com/Xeon3D/textual5-scripts/master/si.scpt"
-		set scriptLocation to the quoted form of (the POSIX path of (path to library folder from user domain) & "Application Scripts/com.codeux.irc.textual5/si.scpt")
-		if latestVersion > CurrentVersion then
+		try
+			do shell script "curl -o /tmp/siversion https://raw.githubusercontent.com/Xeon3D/textual5-scripts/master/siversion"
+			set latestversion to do shell script "cat /tmp/siversion"
+			set latestScriptlocation to "https://raw.githubusercontent.com/Xeon3D/textual5-scripts/master/si.scpt"
+			set scriptLocation to the quoted form of (the POSIX path of (path to library folder from user domain) & "Application Scripts/com.codeux.irc.textual5/si.scpt")
+		on error
+			return "There was an error checking for the latest version. Check https://github.com/Xeon3D/textual5-scripts for updates"
+		end try
+		if latestversion > CurrentVersion then
 			try
 				do shell script "curl -o " & scriptLocation & " " & latestScriptlocation
 				set CheckUpdate to do shell script "cat " & scriptLocation & " | grep 'property CurrentVersion'"
-				if CheckUpdate contains latestVersion then
-					return "/echo Script Updated Sucessfully. Previous Version: " & CurrentVersion & ". CurrentVersion: " & latestVersion
+				if CheckUpdate contains latestversion then
+					return "/echo Script Updated Sucessfully. Previous Version: " & CurrentVersion & ". CurrentVersion: " & latestversion
 				end if
 			on error
-				return "/echo Error checking for the latest version."
+				return "/echo Error updating to the latest version. Check https://github.com/Xeon3D/textual5-scripts for updates"
 			end try
 			
-		else if latestVersion < CurrentVersion then
-			return "/echo You're running a newer version than the one publically available. Your version: " & CurrentVersion & " Latest Public Version: " & latestVersion
+		else if latestversion < CurrentVersion then
+			return "/echo You're running a newer version than the one publically available. Your version: " & CurrentVersion & " Latest Public Version: " & latestversion
 		else
 			return "/echo You're running the latest public version."
 		end if
@@ -733,5 +738,6 @@ on roundThis(n, numDecimals)
 	set x to 10 ^ numDecimals
 	(((n * x) + 0.5) div 1) / x
 end roundThis
+
 
 
