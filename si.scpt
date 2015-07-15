@@ -15,8 +15,8 @@ property ScriptHomepage : "https://raw.githubusercontent.com/Xeon3D/textual5-scr
 property ScriptAuthor : "Xeon3D"
 property ScriptContributors : "emsquare, pencil"
 property ScriptAuthorHomepage : "http://www.github.com/Xeon3D/"
-property CurrentVersion : "0.6.7"
-property CodeName : "It's more intelligent now!"
+property CurrentVersion : "0.6.8"
+property CodeName : "Making Space..."
 property SupportChannel : "irc://irc.freenode.org/#textual"
 
 ---  Colors
@@ -308,6 +308,7 @@ on textualcmd(cmd)
 		set CPUModelFixed to my removetext(CPUModelFixed, "GHz")
 		set CPUModelFixed to my removetext(CPUModelFixed, "  ")
 		set CPUModelFixed to my cutforward(CPUModelFixed, "@")
+		set CPUModelFixed to my removetext(CPUModelFixed, "Intel ")
 		if CPUModelFixed contains "Core2" then
 			set CPUModelFixed to my removetext(CPUModelFixed, "Core2")
 			set CPUModelFixed to my removetext(CPUModelFixed, "Intel ")
@@ -323,9 +324,9 @@ on textualcmd(cmd)
 		if ViewCurrentCPUSpeed then
 			set CPUFrequency to ((CPU speed of (system info)) / 1000) as real
 			if CPUFrequency ≥ 0.99 then
-				set msg to msg & " @ " & "" & roundThis(CPUFrequency, 2) & "GHz"
+				set msg to msg & "@ " & "" & roundThis(CPUFrequency, 2) & "GHz"
 			else
-				set msg to msg & " @ " & "" & (CPUFrequency * 1000 as integer) & "MHz"
+				set msg to msg & "@ " & "" & (CPUFrequency * 1000 as integer) & "MHz"
 			end if
 		end if
 		
@@ -373,11 +374,11 @@ on textualcmd(cmd)
 	
 	--Ram
 	if ViewRam then
-		set TotalMemory to (round (do shell script "sysctl -n hw.memsize") / 1048576)
+		set TotalMemory to (do shell script "sysctl -n hw.memsize") / 1048576 as integer
 		set UsedMemory to (TotalMemory - (the (last word of (do shell script "vm_stat | grep free")) * 4096) / (1048576) as integer)
 		set UsedMemoryBar to round ((UsedMemory / TotalMemory) * 100) / 10 as integer
 		if TotalMemory ≥ 1024 then
-			set TotalMemory to roundThis((TotalMemory / 1024), 2)
+			set TotalMemory to TotalMemory div 1024
 			set TotalMemoryUnit to "GB"
 		else
 			set TotalMemoryUnit to "MB"
@@ -568,16 +569,16 @@ on textualcmd(cmd)
 		if ViewResolutions then
 			set msg to msg & FBold & "Res: " & FBold
 			if ScreensGPU1 is 1 then
-				set ResolutionMonitor1 to item 4 of GPU1
+				set ResolutionMonitor1 to my removetext(item 4 of GPU1, " ")
 				set ResolutionsGPU1 to ResolutionMonitor1
 			else if ScreensGPU1 is 2 then
-				set ResolutionMonitor1 to item 4 of GPU1
-				set ResolutionMonitor2 to item 5 of GPU1
+				set ResolutionMonitor1 to my removetext(item 4 of GPU1, " ")
+				set ResolutionMonitor2 to my removetext(item 5 of GPU1, " ")
 				set ResolutionsGPU1 to ResolutionMonitor1 & " & " & ResolutionMonitor2
 			else if ScreensGPU1 is 3 then
-				set ResolutionMonitor1 to item 4 of GPU1
-				set ResolutionMonitor2 to item 5 of GPU1
-				set ResolutionMonitor3 to item 6 of GPU1
+				set ResolutionMonitor1 to my removetext(item 4 of GPU1, " ")
+				set ResolutionMonitor2 to my removetext(item 5 of GPU1, " ")
+				set ResolutionMonitor3 to my removetext(item 6 of GPU1, " ")
 				set ResolutionsGPU1 to ResolutionMonitor1 & " & " & ResolutionMonitor2 & " & " & ResolutionMonitor3
 			else
 				set ResolutionsGPU1 to ""
@@ -588,22 +589,25 @@ on textualcmd(cmd)
 				set msg to msg & ResolutionsGPU1
 			end if
 			if ScreensGPU2 is 1 then
-				set ResolutionMonitor4 to item 4 of GPU2
+				set ResolutionMonitor4 to my removetext(item 4 of GPU2, " ")
 				set ResolutionsGPU2 to ResolutionMonitor4
 			else if ScreensGPU2 is 2 then
-				set ResolutionMonitor4 to item 4 of GPU2
-				set ResolutionMonitor5 to item 5 of GPU2
+				set ResolutionMonitor4 to my removetext(item 4 of GPU2, " ")
+				set ResolutionMonitor5 to my removetext(item 5 of GPU2, " ")
 				set ResolutionsGPU2 to ResolutionMonitor4 & " & " & ResolutionMonitor5
 			else if ScreensGPU2 is 3 then
-				set ResolutionMonitor4 to item 4 of GPU2
-				set ResolutionMonitor5 to item 5 of GPU2
-				set ResolutionMonitor6 to item 6 of GPU2
+				set ResolutionMonitor4 to my removetext(item 4 of GPU2, " ")
+				set ResolutionMonitor5 to my removetext(item 5 of GPU2, " ")
+				set ResolutionMonitor6 to my removetext(item 6 of GPU2, " ")
 				set ResolutionsGPU2 to ResolutionMonitor4 & " & " & ResolutionMonitor5 & " & " & ResolutionMonitor6
 			else
 				set ResolutionsGPU2 to ""
 			end if
 			set msg to msg & ResolutionsGPU2
 		end if
+		set msg to my removetext(msg, "Intel ")
+		set msg to my removetext(msg, "Graphics ")
+		set msg to my removetext(msg, "AMD Radeon ")
 		set msg to msg & ItemDelimiter
 	end if
 	
