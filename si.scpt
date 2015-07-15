@@ -15,8 +15,8 @@ property ScriptHomepage : "https://raw.githubusercontent.com/Xeon3D/textual5-scr
 property ScriptAuthor : "Xeon3D"
 property ScriptContributors : "emsquare, pencil"
 property ScriptAuthorHomepage : "http://www.github.com/Xeon3D/"
-property CurrentVersion : "0.6.6"
-property CodeName : "The Updater Returns and is fixed..."
+property CurrentVersion : "0.6.7"
+property CodeName : "It's more intelligent now!"
 property SupportChannel : "irc://irc.freenode.org/#textual"
 
 ---  Colors
@@ -397,51 +397,98 @@ on textualcmd(cmd)
 	
 	--HDD
 	if ViewDisk then
-		set isSSD to do shell script "diskutil info /dev/rdisk0 | grep 'Solid State' | awk {'print $(NF)'}"
 		tell application "System Events"
 			set volumesList to (name of every disk whose local volume is true and ejectable is false and format is Mac OS Extended format) as list
 			if (count of volumesList) is less than 1 then
 				return "/debug Error returning Hard Disk space values, please contact the author @ xeon4d@gmail.com"
 			end if
 		end tell
-		set TotalSpace to ""
-		set FreeSpace to ""
+		set TotalSSDSpace to ""
+		set FreeSSDSpace to ""
+		set TotalHDDSpace to ""
+		set FreeHDDSpace to ""
+		set isSSD to "No"
+		set SSDCount to 0
+		set HDDCount to 0
+		
+		
 		repeat with volume in volumesList
-			--		set diskTotals to "1000211607552
-			--460070924288"
+			set isSSD to do shell script "diskutil info " & the quoted form of volume & " | grep 'Solid State' | awk {'print $(NF)'}"
 			set diskTotals to do shell script "diskutil info " & the quoted form of volume & " | awk '/Total Size|Volume Free Space/' | awk -F':' {'print $2'} | tr -d ' ' | awk -F'(' {'print $2'} | awk -F'B' {'print $1'}"
-			set TotalSpaceD to roundThis((the first paragraph of diskTotals as integer) / 1.0E+9, 1)
-			set FreeSpaceD to roundThis((the second paragraph of diskTotals as integer) / 1.0E+9, 1)
-			set TotalSpace to TotalSpace + TotalSpaceD
-			set FreeSpace to FreeSpace + FreeSpaceD
-			set UsedSpace to TotalSpace - FreeSpace
-			
-			if TotalSpace ≥ 1000 then
-				set TotalSpaceBar to TotalSpace
-				set TotalSpace to roundThis(TotalSpace / 1000, 1)
-				set TotalSpaceUnit to "TB"
-			else
-				set TotalSpaceBar to TotalSpace
-				set TotalSpaceUnit to "GB"
-			end if
-			if UsedSpace ≥ 1000 then
-				set UsedSpaceBar to UsedSpace
-				set UsedSpace to roundThis(UsedSpace / 1000, 1)
-				set UsedSpaceUnit to "TB"
-			else
-				set UsedSpaceBar to UsedSpace
-				set UsedSpaceUnit to "GB"
+			if isSSD is "Yes" then
+				set SSDCount to SSDCount + 1
+				set TotalSpaceD to roundThis((the first paragraph of diskTotals as integer) / 1.0E+9, 1)
+				set FreeSpaceD to roundThis((the second paragraph of diskTotals as integer) / 1.0E+9, 1)
+				set TotalSSDSpace to TotalSSDSpace + TotalSpaceD
+				set FreeSSDSpace to FreeSSDSpace + FreeSpaceD
+				set UsedSSDSpace to TotalSSDSpace - FreeSSDSpace
+			else if isSSD is "No" then
+				set HDDCount to HDDCount + 1
+				set TotalSpaceD to roundThis((the first paragraph of diskTotals as integer) / 1.0E+9, 1)
+				set FreeSpaceD to roundThis((the second paragraph of diskTotals as integer) / 1.0E+9, 1)
+				set TotalHDDSpace to TotalHDDSpace + TotalSpaceD
+				set FreeHDDSpace to FreeHDDSpace + FreeSpaceD
+				set UsedHDDSpace to TotalHDDSpace - FreeHDDSpace
 			end if
 		end repeat
-		set UsedHDDBar to round (((UsedSpaceBar) / TotalSpaceBar) * 100) / 10 as integer
-		if isSSD is "No" then
-			set msg to msg & FBold & "HDD: " & FBold & (UsedSpace) & UsedSpaceUnit & "/" & TotalSpace & TotalSpaceUnit
-		else
-			set msg to msg & FBold & "SSD: " & FBold & (UsedSpace) & UsedSpaceUnit & "/" & TotalSpace & TotalSpaceUnit
+		
+		
+		if SSDCount > 0 then
+			if TotalSSDSpace ≥ 1000 then
+				set TotalSSDSpaceBar to TotalSSDSpace
+				set TotalSSDSpace to roundThis(TotalSSDSpace / 1000, 1)
+				set TotalSSDSpaceUnit to "TB"
+			else
+				set TotalSSDSpaceBar to TotalSSDSpace
+				set TotalSSDSpaceUnit to "GB"
+			end if
+			if UsedSSDSpace ≥ 1000 then
+				set UsedSSDSpaceBar to UsedSSDSpace
+				set UsedSSDSpace to roundThis(UsedSSDSpace / 1000, 1)
+				set UsedSSDSpaceUnit to "TB"
+			else
+				set UsedSSDSpaceBar to UsedSSDSpace
+				set UsedSSDSpaceUnit to "GB"
+			end if
 		end if
-		if ViewBars then
-			set OutputBar to MakeBars(UsedHDDBar)
-			set msg to msg & " " & OutputBar
+		if HDDCount > 0 then
+			if TotalHDDSpace ≥ 1000 then
+				set TotalHDDSpaceBar to TotalHDDSpace
+				set TotalHDDSpace to roundThis(TotalHDDSpace / 1000, 1)
+				set TotalHDDSpaceUnit to "TB"
+			else
+				set TotalHDDSpaceBar to TotalHDDSpace
+				set TotalHDDSpaceUnit to "GB"
+			end if
+			if UsedHDDSpace ≥ 1000 then
+				set UsedHDDSpaceBar to UsedHDDSpace
+				set UsedHDDSpace to roundThis(UsedHDDSpace / 1000, 1)
+				set UsedHDDSpaceUnit to "TB"
+			else
+				set UsedHDDSpaceBar to UsedHDDSpace
+				set UsedHDDSpaceUnit to "GB"
+			end if
+		end if
+		
+		try
+			set SSDBar to round (((UsedSSDSpaceBar) / TotalSSDSpaceBar) * 100) / 10 as integer
+		end try
+		try
+			set HDDBar to round (((UsedHDDSpaceBar) / TotalHDDSpaceBar) * 100) / 10 as integer
+		end try
+		if HDDCount > 0 then
+			set msg to msg & FBold & "HDD: " & FBold & (UsedHDDSpace) & UsedHDDSpaceUnit & "/" & TotalHDDSpace & TotalHDDSpaceUnit
+			if ViewBars then
+				set OutputHDDBar to MakeBars(HDDBar)
+				set msg to msg & " " & OutputHDDBar
+			end if
+		end if
+		if SSDCount > 0 then
+			set msg to msg & FBold & "SSD: " & FBold & (UsedSSDSpace) & UsedSSDSpaceUnit & "/" & TotalSSDSpace & TotalSSDSpaceUnit
+			if ViewBars then
+				set OutputSSDBar to MakeBars(SSDBar)
+				set msg to msg & " " & OutputSSDBar
+			end if
 		end if
 		set msg to msg & ItemDelimiter
 	end if
