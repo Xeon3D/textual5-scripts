@@ -15,8 +15,8 @@ property ScriptHomepage : "https://raw.githubusercontent.com/Xeon3D/textual5-scr
 property ScriptAuthor : "Xeon3D"
 property ScriptContributors : "emsquare, pencil"
 property ScriptAuthorHomepage : "http://www.github.com/Xeon3D/"
-property CurrentVersion : "0.6.8"
-property CodeName : "Making Space..."
+property CurrentVersion : "0.6.9"
+property CodeName : "Destroying Space"
 property SupportChannel : "irc://irc.freenode.org/#textual"
 
 ---  Colors
@@ -137,7 +137,7 @@ on textualcmd(cmd)
 	end if
 	
 	if cmd is "all" then
-		set cmd to "mac cpu speed cap cache ram bar disk gpu bus res audio power osx osxbuild osxarch kernel kerneltag uptime client clientbuild script"
+		set cmd to "mac cpu speed cap cache ram bar disk bc gpu bus res audio power osx osxbuild osxarch kernel kerneltag uptime client clientbuild script"
 	end if
 	
 	-- Defines default runtime options.
@@ -152,6 +152,7 @@ on textualcmd(cmd)
 		set ViewRam to true
 		set ViewBars to true
 		set ViewDisk to true
+		set ViewBootCamp to false
 		set ViewDisplay to true
 		set ViewGFXBus to false
 		set ViewResolutions to true
@@ -177,6 +178,7 @@ on textualcmd(cmd)
 		set ViewRam to (cmd contains "ram")
 		set ViewBars to (cmd contains "bar")
 		set ViewDisk to (cmd contains "disk" or cmd contains "hd")
+		set ViewBootCamp to (cmd contains "bootcamp" or cmd contains "bc")
 		set ViewDisplay to (cmd contains "gpu" or cmd contains "graphics" or cmd contains "video")
 		if ViewDisplay then
 			set ViewGFXBus to (cmd contains "bus")
@@ -492,6 +494,57 @@ on textualcmd(cmd)
 			end if
 		end if
 		set msg to msg & ItemDelimiter
+	end if
+	
+	-- BootCamp
+	if ViewBootCamp is true then
+		--BootCamp
+		if ViewBootCamp then
+			--tell application "System Events"
+			--	set BCDisk to (name of every disk whose local volume is true and ejectable is false and format is NFS format) as string
+			--end tell
+			tell application "System Events"
+				set disklist to list disks
+			end tell
+			if disklist contains "BOOTCAMP" then
+				set BCDisk to "BOOTCAMP"
+				set BCDiskPPath to BCDisk's POSIX path
+			else if disklist contains "Untitled" then
+				set BCDisk to "Untitled"
+				set BCDiskPPath to BCDisk's POSIX path
+			else
+				return "/debug Error! You asked for BootCamp disk stats, but such a partition doesn't exist or wasn't found by the script. If you're sure that you have one, please contact Xeon3D @ Freenode's #textual"
+			end if
+			
+			set BCTotals to do shell script "diskutil info " & BCDiskPPath & " | awk '/Total Size|Volume Free Space/' | awk -F':' {'print $2'} | tr -d ' ' | awk -F'(' {'print $2'} | awk -F'B' {'print $1'}"
+			set BCTotalSpace to roundThis((the first paragraph of BCTotals as integer) / 1.0E+9, 1)
+			set BCFreeSpace to roundThis((the second paragraph of BCTotals as integer) / 1.0E+9, 1)
+			set BCUsedSpace to BCTotalSpace - BCFreeSpace
+			if BCTotalSpace ≥ 1000 then
+				set BCTotalSpaceBar to BCTotalSpace
+				set BCTotalSpace to roundThis(BCTotalSpace / 1000, 1)
+				set BCTotalSpaceUnit to "TB"
+			else
+				set BCTotalSpaceBar to BCTotalSpace
+				set BCTotalSpaceUnit to "GB"
+			end if
+			if BCUsedSpace ≥ 1000 then
+				set BCUsedSpaceBar to BCUsedSpace
+				set BCUsedSpace to roundThis(BCUsedSpace / 1000, 1)
+				set BCUsedSpaceUnit to "TB"
+			else
+				set BCUsedSpaceBar to BCUsedSpace
+				set BCUsedSpaceUnit to "GB"
+			end if
+			set BCBar to round (((BCUsedSpaceBar) / BCTotalSpaceBar) * 100) / 10 as integer
+			set msg to msg & FBold & "BootCamp: " & FBold & (BCUsedSpace) & BCUsedSpaceUnit & "/" & BCTotalSpace & BCTotalSpaceUnit
+			if ViewBars then
+				set OutputBCBar to MakeBars(BCBar)
+				set msg to msg & " " & OutputBCBar
+			end if
+			
+			set msg to msg & ItemDelimiter
+		end if
 	end if
 	
 	--Display
