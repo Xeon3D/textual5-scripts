@@ -15,7 +15,7 @@ property ScriptHomepage : "https://raw.githubusercontent.com/Xeon3D/textual5-scr
 property ScriptAuthor : "Xeon3D"
 property ScriptContributors : "emsquare, pencil"
 property ScriptAuthorHomepage : "http://www.github.com/Xeon3D/"
-property CurrentVersion : "0.7.2"
+property CurrentVersion : "0.7.3"
 property CodeName : "Destroying Space"
 property SupportChannel : "irc://irc.freenode.org/#textual"
 
@@ -44,7 +44,7 @@ property FreeColor : CGreen
 property SeparatorColor : COrange
 
 -- | DEBUG COMMAND | --
---set cmd to ""
+-- set cmd to ""
 
 on textualcmd(cmd)
 	-- |Variables| --
@@ -176,6 +176,7 @@ on textualcmd(cmd)
 			set ViewCPUCapabilities to (cmd contains "cap")
 			set ViewCPUCache to (cmd contains "cache")
 		end if
+		set ViewFullDisk to (cmd contains "fhd")
 		set ViewRam to (cmd contains "ram")
 		set ViewBars to (cmd contains "bar")
 		set ViewDisk to (cmd contains "disk" or cmd contains "hd")
@@ -646,8 +647,8 @@ on textualcmd(cmd)
 		end repeat
 		if GPUtwo is 0 then
 			set GPU1 to items 1 thru (count of items of SPGraphicsInfo) of SPGraphicsInfo
-			set VideoCard1 to item 1 of GPU1
-			set VideoCardBus1 to ", " & item 2 of GPU1
+			set VideoCard1 to my trim(item 1 of GPU1)
+			set VideoCardBus1 to ", " & my trim(item 2 of GPU1)
 			if ViewGFXBus then
 				set VideoMemory1 to " [" & item 3 of GPU1 & VideoCardBus1 & "]"
 			else
@@ -694,7 +695,7 @@ on textualcmd(cmd)
 				end if
 			end if
 		end if
-		set msg to msg & FBold & "GPU: " & FBold & VideoCard & " " & ItemDelimiter
+		set msg to msg & FBold & "GPU: " & FBold & VideoCard & ItemDelimiter
 		
 		--Resolutions
 		if ViewResolutions then
@@ -717,7 +718,7 @@ on textualcmd(cmd)
 			if ScreensGPU1 is not 0 and ScreensGPU2 is not 0 then
 				set msg to msg & ResolutionsGPU1 & " & "
 			else
-				set msg to msg & ResolutionsGPU1 & ItemDelimiter
+				set msg to msg & ResolutionsGPU1
 			end if
 			if ScreensGPU2 is 1 then
 				set ResolutionMonitor4 to my removetext(item 4 of GPU2, " ")
