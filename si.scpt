@@ -15,7 +15,7 @@ property ScriptHomepage : "https://raw.githubusercontent.com/Xeon3D/textual5-scr
 property ScriptAuthor : "Xeon3D"
 property ScriptContributors : "emsquare, pencil"
 property ScriptAuthorHomepage : "http://www.github.com/Xeon3D/"
-property CurrentVersion : "0.6.10"
+property CurrentVersion : "0.7.0"
 property CodeName : "Spaces..."
 property SupportChannel : "irc://irc.freenode.org/#textual"
 
