@@ -15,8 +15,8 @@ property ScriptHomepage : "https://raw.githubusercontent.com/Xeon3D/textual5-scr
 property ScriptAuthor : "Xeon3D"
 property ScriptContributors : "emsquare, pencil"
 property ScriptAuthorHomepage : "http://www.github.com/Xeon3D/"
-property CurrentVersion : "0.6.9"
-property CodeName : "Destroying Space"
+property CurrentVersion : "0.6.10"
+property CodeName : "Spaces..."
 property SupportChannel : "irc://irc.freenode.org/#textual"
 
 ---  Colors
@@ -483,17 +483,17 @@ on textualcmd(cmd)
 			set msg to msg & FBold & "HDD: " & FBold & (UsedHDDSpace) & UsedHDDSpaceUnit & "/" & TotalHDDSpace & TotalHDDSpaceUnit
 			if ViewBars then
 				set OutputHDDBar to MakeBars(HDDBar)
-				set msg to msg & " " & OutputHDDBar
+				set msg to msg & " " & OutputHDDBar & ItemDelimiter
 			end if
 		end if
 		if SSDCount > 0 then
 			set msg to msg & FBold & "SSD: " & FBold & (UsedSSDSpace) & UsedSSDSpaceUnit & "/" & TotalSSDSpace & TotalSSDSpaceUnit
 			if ViewBars then
 				set OutputSSDBar to MakeBars(SSDBar)
-				set msg to msg & " " & OutputSSDBar
+				set msg to msg & " " & OutputSSDBar & ItemDelimiter
 			end if
 		end if
-		set msg to msg & ItemDelimiter
+		set msg to msg
 	end if
 	
 	-- BootCamp
