@@ -15,7 +15,7 @@ property ScriptHomepage : "https://raw.githubusercontent.com/Xeon3D/textual5-scr
 property ScriptAuthor : "Xeon3D"
 property ScriptContributors : "emsquare, pencil"
 property ScriptAuthorHomepage : "http://www.github.com/Xeon3D/"
-property CurrentVersion : "0.7.1"
+property CurrentVersion : "0.7.2"
 property CodeName : "Destroying Space"
 property SupportChannel : "irc://irc.freenode.org/#textual"
 
@@ -152,6 +152,7 @@ on textualcmd(cmd)
 		set ViewRam to true
 		set ViewBars to true
 		set ViewDisk to true
+		set ViewFullDisk to false
 		set ViewBootCamp to false
 		set ViewDisplay to true
 		set ViewGFXBus to false
@@ -159,13 +160,13 @@ on textualcmd(cmd)
 		set ViewAudio to false
 		set ViewPower to true
 		set ViewOSXVersion to true
-		set ViewOSXArch to true
+		set ViewOSXArch to false
 		set ViewOSXBuild to false
 		set ViewKernel to false
 		set ViewKernelTag to false
 		set ViewUptime to true
 		set ViewClient to true
-		set ViewScriptVersion to true
+		set ViewScriptVersion to false
 	else
 		---- Checks which options the user supplied at runtime and acts accordingly.
 		set ViewMac to (cmd contains "mac")
@@ -400,80 +401,229 @@ on textualcmd(cmd)
 	
 	--HDD
 	if ViewDisk then
-		set diskQty to (count the paragraphs of (do shell script "diskutil list | grep '/dev/'")) as integer
-		--	set diskQty to 1
-		set currentDisk to -1
-		set DiskTotalSize to {}
-		repeat diskQty times
-			set currentDisk to currentDisk + 1
-			set rundiskSizeCheck to (do shell script "diskutil info /dev/disk" & currentDisk & "| grep 'Total Size:'") as string
-			set rundiskTypeCheck to (do shell script "diskutil info /dev/disk" & currentDisk & "| grep 'Solid State:'") as string
-			set rundiskSizeCheck to my cutbackward(rundiskSizeCheck, ":")
-			set DiskTotalSize to my trim(my cutforward(rundiskSizeCheck, "("))
-			set rundiskTypeCheck to my cutbackward(rundiskTypeCheck, ":")
-			set rundiskTypeCheck to my trim(rundiskTypeCheck)
-			if rundiskTypeCheck is "Yes" then
-				set disktype to "SSD"
-			else
-				set disktype to "HDD"
-			end if
-			set PartList to the paragraphs 2 thru -1 of (do shell script "diskutil list disk" & currentDisk & " | grep 'GB'")
-			set PartCount to count the items of PartList
-			
-			if currentDisk is 0 then
-				set msg to msg & disktype & ": " & DiskTotalSize
-			else
-				set msg to msg & space & disktype & ": " & DiskTotalSize
-			end if
-			--	return msg
-			
-			set AppleCurrentPart to 0
-			set ApplePartFree to ""
-			set applePartUsed to ""
-			set applePartTotal to ""
-			set WinCurrentPart to 0
-			set WinPartFree to ""
-			set WinPartUsed to ""
-			set WinPartTotal to ""
-			set ApplePartList to the paragraphs of (do shell script "diskutil list disk" & currentDisk & "| grep 'GB' | grep 'Apple' | awk '{print $NF}'")
-			set ApplePartCount to count the items of ApplePartList
-			repeat ApplePartCount times
-				set AppleCurrentPart to AppleCurrentPart + 1
-				set ApplePartFree to ApplePartFree + roundThis((my removetext(do shell script "diskutil info " & ApplePartList's item AppleCurrentPart & " | grep 'Volume Free Space' | awk '{print $(NF-4)}'", "(")) / 1.0E+9, 1)
-				set applePartTotal to applePartTotal + roundThis((my removetext(do shell script "diskutil info " & ApplePartList's item AppleCurrentPart & " | grep 'Total Size' | awk '{print $(NF-4)}'", "(")) / 1.0E+9, 1)
-				set applePartUsed to applePartTotal - ApplePartFree
-			end repeat
-			
-			if ApplePartCount is not 0 then
-				set AppleMessage to " [OS X: " & applePartUsed & " GB/" & applePartTotal & " GB]"
-				set msg to msg & AppleMessage
-				if ViewBars then
-					set msg to msg & space & MakeBars(((applePartUsed * 100) div applePartTotal) / 10 as integer)
+		if ViewFullDisk then
+			set diskQty to (count the paragraphs of (do shell script "diskutil list | grep '/dev/'")) as integer
+			--	set diskQty to 1
+			set currentDisk to -1
+			set DiskTotalSize to {}
+			repeat diskQty times
+				set currentDisk to currentDisk + 1
+				set rundiskSizeCheck to (do shell script "diskutil info /dev/disk" & currentDisk & "| grep 'Total Size:'") as string
+				set rundiskTypeCheck to (do shell script "diskutil info /dev/disk" & currentDisk & "| grep 'Solid State:'") as string
+				set rundiskSizeCheck to my cutbackward(rundiskSizeCheck, ":")
+				set DiskTotalSize to my trim(my cutforward(rundiskSizeCheck, "("))
+				set rundiskTypeCheck to my cutbackward(rundiskTypeCheck, ":")
+				set rundiskTypeCheck to my trim(rundiskTypeCheck)
+				if rundiskTypeCheck is "Yes" then
+					set disktype to "SSD"
+				else
+					set disktype to "HDD"
 				end if
-			end if
-			
-			if ViewBootCamp then
-				set WinPartList to the paragraphs of (do shell script "diskutil list disk" & currentDisk & "| grep 'GB' | grep 'Basic' | awk '{print $NF}'")
-				set WinPartCount to count the items of WinPartList
-				repeat WinPartCount times
-					set WinCurrentPart to WinCurrentPart + 1
-					set WinPartFree to WinPartFree + roundThis((my removetext(do shell script "diskutil info " & WinPartList's item WinCurrentPart & " | grep 'Volume Free Space' | awk '{print $(NF-4)}'", "(")) / 1.0E+9, 1)
-					set WinPartTotal to WinPartTotal + roundThis((my removetext(do shell script "diskutil info " & WinPartList's item WinCurrentPart & " | grep 'Total Size' | awk '{print $(NF-4)}'", "(")) / 1.0E+9, 1)
-					set WinPartUsed to WinPartTotal - WinPartFree
+				set PartList to the paragraphs 2 thru -1 of (do shell script "diskutil list disk" & currentDisk & " | grep 'GB'")
+				set PartCount to count the items of PartList
+				
+				if currentDisk is 0 then
+					set msg to msg & disktype & ": " & DiskTotalSize
+				else
+					set msg to msg & space & disktype & ": " & DiskTotalSize
+				end if
+				--	return msg
+				
+				set AppleCurrentPart to 0
+				set ApplePartFree to ""
+				set applePartUsed to ""
+				set applePartTotal to ""
+				set WinCurrentPart to 0
+				set WinPartFree to ""
+				set WinPartUsed to ""
+				set WinPartTotal to ""
+				set ApplePartList to the paragraphs of (do shell script "diskutil list disk" & currentDisk & "| grep 'GB' | grep 'Apple' | awk '{print $NF}'")
+				set ApplePartCount to count the items of ApplePartList
+				repeat ApplePartCount times
+					set AppleCurrentPart to AppleCurrentPart + 1
+					set ApplePartFree to ApplePartFree + roundThis((my removetext(do shell script "diskutil info " & ApplePartList's item AppleCurrentPart & " | grep 'Volume Free Space' | awk '{print $(NF-4)}'", "(")) / 1.0E+9, 1)
+					set applePartTotal to applePartTotal + roundThis((my removetext(do shell script "diskutil info " & ApplePartList's item AppleCurrentPart & " | grep 'Total Size' | awk '{print $(NF-4)}'", "(")) / 1.0E+9, 1)
+					set applePartUsed to applePartTotal - ApplePartFree
 				end repeat
 				
-				if WinPartCount is not 0 then
-					set BCMessage to " [BootCamp: " & WinPartUsed & " GB/" & WinPartTotal & " GB]"
-					set msg to msg & BCMessage
+				if ApplePartCount is not 0 then
+					set AppleMessage to " [OS X: " & applePartUsed & " GB/" & applePartTotal & " GB]"
+					set msg to msg & AppleMessage
 					if ViewBars then
-						set msg to msg & space & MakeBars(((WinPartUsed * 100) div WinPartTotal) / 10 as integer)
+						set msg to msg & space & MakeBars(((applePartUsed * 100) div applePartTotal) / 10 as integer)
 					end if
 				end if
+				
+				if ViewBootCamp then
+					set WinPartList to the paragraphs of (do shell script "diskutil list disk" & currentDisk & "| grep 'GB' | grep 'Basic' | awk '{print $NF}'")
+					set WinPartCount to count the items of WinPartList
+					repeat WinPartCount times
+						set WinCurrentPart to WinCurrentPart + 1
+						set WinPartFree to WinPartFree + roundThis((my removetext(do shell script "diskutil info " & WinPartList's item WinCurrentPart & " | grep 'Volume Free Space' | awk '{print $(NF-4)}'", "(")) / 1.0E+9, 1)
+						set WinPartTotal to WinPartTotal + roundThis((my removetext(do shell script "diskutil info " & WinPartList's item WinCurrentPart & " | grep 'Total Size' | awk '{print $(NF-4)}'", "(")) / 1.0E+9, 1)
+						set WinPartUsed to WinPartTotal - WinPartFree
+					end repeat
+					
+					if WinPartCount is not 0 then
+						set BCMessage to " [BootCamp: " & WinPartUsed & " GB/" & WinPartTotal & " GB]"
+						set msg to msg & BCMessage
+						if ViewBars then
+							set msg to msg & space & MakeBars(((WinPartUsed * 100) div WinPartTotal) / 10 as integer)
+						end if
+					end if
+				end if
+			end repeat
+			set msg to msg & ItemDelimiter
+		else
+			tell application "System Events"
+				set volumesList to (name of every disk whose local volume is true and ejectable is false and format is Mac OS Extended format) as list
+				if (count of volumesList) is less than 1 then
+					return "/debug Error returning Hard Disk space values, please contact the author @ xeon4d@gmail.com"
+				end if
+			end tell
+			set TotalSSDSpace to ""
+			set FreeSSDSpace to ""
+			set TotalHDDSpace to ""
+			set FreeHDDSpace to ""
+			set isSSD to "No"
+			set SSDCount to 0
+			set HDDCount to 0
+			
+			
+			repeat with volume in volumesList
+				set isSSD to do shell script "diskutil info " & the quoted form of volume & " | grep 'Solid State' | awk {'print $(NF)'}"
+				set diskTotals to do shell script "diskutil info " & the quoted form of volume & " | awk '/Total Size|Volume Free Space/' | awk -F':' {'print $2'} | tr -d ' ' | awk -F'(' {'print $2'} | awk -F'B' {'print $1'}"
+				if isSSD is "Yes" then
+					set SSDCount to SSDCount + 1
+					set TotalSpaceD to roundThis((the first paragraph of diskTotals as integer) / 1.0E+9, 1)
+					set FreeSpaceD to roundThis((the second paragraph of diskTotals as integer) / 1.0E+9, 1)
+					set TotalSSDSpace to TotalSSDSpace + TotalSpaceD
+					set FreeSSDSpace to FreeSSDSpace + FreeSpaceD
+					set UsedSSDSpace to TotalSSDSpace - FreeSSDSpace
+				else if isSSD is "No" then
+					set HDDCount to HDDCount + 1
+					set TotalSpaceD to roundThis((the first paragraph of diskTotals as integer) / 1.0E+9, 1)
+					set FreeSpaceD to roundThis((the second paragraph of diskTotals as integer) / 1.0E+9, 1)
+					set TotalHDDSpace to TotalHDDSpace + TotalSpaceD
+					set FreeHDDSpace to FreeHDDSpace + FreeSpaceD
+					set UsedHDDSpace to TotalHDDSpace - FreeHDDSpace
+				end if
+			end repeat
+			
+			
+			if SSDCount > 0 then
+				if TotalSSDSpace ≥ 1000 then
+					set TotalSSDSpaceBar to TotalSSDSpace
+					set TotalSSDSpace to roundThis(TotalSSDSpace / 1000, 1)
+					set TotalSSDSpaceUnit to "TB"
+				else
+					set TotalSSDSpaceBar to TotalSSDSpace
+					set TotalSSDSpaceUnit to "GB"
+				end if
+				if UsedSSDSpace ≥ 1000 then
+					set UsedSSDSpaceBar to UsedSSDSpace
+					set UsedSSDSpace to roundThis(UsedSSDSpace / 1000, 1)
+					set UsedSSDSpaceUnit to "TB"
+				else
+					set UsedSSDSpaceBar to UsedSSDSpace
+					set UsedSSDSpaceUnit to "GB"
+				end if
 			end if
-		end repeat
+			if HDDCount > 0 then
+				if TotalHDDSpace ≥ 1000 then
+					set TotalHDDSpaceBar to TotalHDDSpace
+					set TotalHDDSpace to roundThis(TotalHDDSpace / 1000, 1)
+					set TotalHDDSpaceUnit to "TB"
+				else
+					set TotalHDDSpaceBar to TotalHDDSpace
+					set TotalHDDSpaceUnit to "GB"
+				end if
+				if UsedHDDSpace ≥ 1000 then
+					set UsedHDDSpaceBar to UsedHDDSpace
+					set UsedHDDSpace to roundThis(UsedHDDSpace / 1000, 1)
+					set UsedHDDSpaceUnit to "TB"
+				else
+					set UsedHDDSpaceBar to UsedHDDSpace
+					set UsedHDDSpaceUnit to "GB"
+				end if
+			end if
+			
+			try
+				set SSDBar to round (((UsedSSDSpaceBar) / TotalSSDSpaceBar) * 100) / 10 as integer
+			end try
+			try
+				set HDDBar to round (((UsedHDDSpaceBar) / TotalHDDSpaceBar) * 100) / 10 as integer
+			end try
+			if HDDCount > 0 then
+				set msg to msg & FBold & "HDD: " & FBold & (UsedHDDSpace) & UsedHDDSpaceUnit & "/" & TotalHDDSpace & TotalHDDSpaceUnit
+				if ViewBars then
+					set OutputHDDBar to MakeBars(HDDBar)
+					set msg to msg & " " & OutputHDDBar & ItemDelimiter
+				end if
+			end if
+			if SSDCount > 0 then
+				set msg to msg & FBold & "SSD: " & FBold & (UsedSSDSpace) & UsedSSDSpaceUnit & "/" & TotalSSDSpace & TotalSSDSpaceUnit
+				if ViewBars then
+					set OutputSSDBar to MakeBars(SSDBar)
+					set msg to msg & " " & OutputSSDBar & ItemDelimiter
+				end if
+			end if
+			set msg to msg
+		end if
 		
-		set msg to msg & ItemDelimiter
+		-- BootCamp
+		if ViewBootCamp is true then
+			--BootCamp
+			if ViewBootCamp then
+				--tell application "System Events"
+				--	set BCDisk to (name of every disk whose local volume is true and ejectable is false and format is NFS format) as string
+				--end tell
+				tell application "System Events"
+					set disklist to list disks
+				end tell
+				if disklist contains "BOOTCAMP" then
+					set BCDisk to "BOOTCAMP"
+					set BCDiskPPath to BCDisk's POSIX path
+				else if disklist contains "Untitled" then
+					set BCDisk to "Untitled"
+					set BCDiskPPath to BCDisk's POSIX path
+				else
+					return "/debug Error! You asked for BootCamp disk stats, but such a partition doesn't exist or wasn't found by the script. If you're sure that you have one, please contact Xeon3D @ Freenode's #textual"
+				end if
+				
+				set BCTotals to do shell script "diskutil info " & BCDiskPPath & " | awk '/Total Size|Volume Free Space/' | awk -F':' {'print $2'} | tr -d ' ' | awk -F'(' {'print $2'} | awk -F'B' {'print $1'}"
+				set BCTotalSpace to roundThis((the first paragraph of BCTotals as integer) / 1.0E+9, 1)
+				set BCFreeSpace to roundThis((the second paragraph of BCTotals as integer) / 1.0E+9, 1)
+				set BCUsedSpace to BCTotalSpace - BCFreeSpace
+				if BCTotalSpace ≥ 1000 then
+					set BCTotalSpaceBar to BCTotalSpace
+					set BCTotalSpace to roundThis(BCTotalSpace / 1000, 1)
+					set BCTotalSpaceUnit to "TB"
+				else
+					set BCTotalSpaceBar to BCTotalSpace
+					set BCTotalSpaceUnit to "GB"
+				end if
+				if BCUsedSpace ≥ 1000 then
+					set BCUsedSpaceBar to BCUsedSpace
+					set BCUsedSpace to roundThis(BCUsedSpace / 1000, 1)
+					set BCUsedSpaceUnit to "TB"
+				else
+					set BCUsedSpaceBar to BCUsedSpace
+					set BCUsedSpaceUnit to "GB"
+				end if
+				set BCBar to round (((BCUsedSpaceBar) / BCTotalSpaceBar) * 100) / 10 as integer
+				set msg to msg & FBold & "BootCamp: " & FBold & (BCUsedSpace) & BCUsedSpaceUnit & "/" & BCTotalSpace & BCTotalSpaceUnit
+				if ViewBars then
+					set OutputBCBar to MakeBars(BCBar)
+					set msg to msg & " " & OutputBCBar
+				end if
+				
+				set msg to msg & ItemDelimiter
+			end if
+		end if
 	end if
+	
+	
 	
 	--Display
 	if ViewDisplay then
@@ -544,7 +694,7 @@ on textualcmd(cmd)
 				end if
 			end if
 		end if
-		set msg to msg & FBold & "GPU: " & FBold & VideoCard & " "
+		set msg to msg & FBold & "GPU: " & FBold & VideoCard & " " & ItemDelimiter
 		
 		--Resolutions
 		if ViewResolutions then
@@ -567,7 +717,7 @@ on textualcmd(cmd)
 			if ScreensGPU1 is not 0 and ScreensGPU2 is not 0 then
 				set msg to msg & ResolutionsGPU1 & " & "
 			else
-				set msg to msg & ResolutionsGPU1
+				set msg to msg & ResolutionsGPU1 & ItemDelimiter
 			end if
 			if ScreensGPU2 is 1 then
 				set ResolutionMonitor4 to my removetext(item 4 of GPU2, " ")
@@ -584,12 +734,11 @@ on textualcmd(cmd)
 			else
 				set ResolutionsGPU2 to ""
 			end if
-			set msg to msg & ResolutionsGPU2
+			set msg to msg & ResolutionsGPU2 & ItemDelimiter
 		end if
 		set msg to my removetext(msg, "Intel ")
 		set msg to my removetext(msg, "Graphics ")
 		set msg to my removetext(msg, "AMD Radeon ")
-		set msg to msg & ItemDelimiter
 	end if
 	
 	--Audio
