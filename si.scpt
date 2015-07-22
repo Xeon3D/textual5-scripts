@@ -15,7 +15,7 @@ property ScriptHomepage : "https://raw.githubusercontent.com/Xeon3D/textual5-scr
 property ScriptAuthor : "Xeon3D"
 property ScriptContributors : "emsquare, pencil"
 property ScriptAuthorHomepage : "http://www.github.com/Xeon3D/"
-property CurrentVersion : "0.7.3"
+property CurrentVersion : "0.7.4"
 property CodeName : "Destroying Space"
 property SupportChannel : "irc://irc.freenode.org/#textual"
 
@@ -137,7 +137,7 @@ on textualcmd(cmd)
 	end if
 	
 	if cmd is "all" then
-		set cmd to "mac cpu speed cap cache ram bar disk bc gpu bus res audio power osx osxbuild osxarch kernel kerneltag uptime client clientbuild script"
+		set cmd to "mac cpu speed cap cache ram bar disk fdisk bc gpu bus res audio power osx osxbuild osxarch kernel kerneltag uptime client clientbuild script"
 	end if
 	
 	-- Defines default runtime options.
@@ -152,7 +152,7 @@ on textualcmd(cmd)
 		set ViewRam to true
 		set ViewBars to true
 		set ViewDisk to true
-		set ViewFullDisk to false
+		set ViewFullDisk to true
 		set ViewBootCamp to false
 		set ViewDisplay to true
 		set ViewGFXBus to false
@@ -180,6 +180,7 @@ on textualcmd(cmd)
 		set ViewRam to (cmd contains "ram")
 		set ViewBars to (cmd contains "bar")
 		set ViewDisk to (cmd contains "disk" or cmd contains "hd")
+		set ViewFullDisk to (cmd contains "fdisk")
 		set ViewBootCamp to (cmd contains "bootcamp" or cmd contains "bc")
 		set ViewDisplay to (cmd contains "gpu" or cmd contains "graphics" or cmd contains "video")
 		if ViewDisplay then
@@ -438,7 +439,7 @@ on textualcmd(cmd)
 				set WinPartFree to ""
 				set WinPartUsed to ""
 				set WinPartTotal to ""
-				set ApplePartList to the paragraphs of (do shell script "diskutil list disk" & currentDisk & "| grep 'GB' | grep 'Apple' | awk '{print $NF}'")
+				set ApplePartList to the paragraphs of (do shell script "diskutil list disk" & currentDisk & "| grep 'GB' | grep 'Apple_HFS' | awk '{print $NF}'")
 				set ApplePartCount to count the items of ApplePartList
 				repeat ApplePartCount times
 					set AppleCurrentPart to AppleCurrentPart + 1
