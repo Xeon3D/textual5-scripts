@@ -415,12 +415,13 @@ on textualcmd(cmd)
 	--HDD
 	if ViewDisk then
 		if ViewFullDisk then
-			set diskQty to (count the paragraphs of (do shell script "diskutil list | grep '/dev/' | grep 'Internal'")) as integer
+			set diskQty to (count the paragraphs of (do shell script "diskutil list | grep '/dev/'")) as integer
 			--	set diskQty to 1
 			set currentDisk to -1
 			set DiskTotalSize to {}
 			repeat diskQty times
 				set currentDisk to currentDisk + 1
+				if (do shell script "diskutil info /dev/disk" & currentDisk & " | grep 'Protocol:'") contains "Disk Image" then exit repeat
 				set rundiskSizeCheck to (do shell script "diskutil info /dev/disk" & currentDisk & "| grep 'Total Size:'") as string
 				set rundiskTypeCheck to (do shell script "diskutil info /dev/disk" & currentDisk & "| grep 'Solid State:'") as string
 				set rundiskSizeCheck to my cutbackward(rundiskSizeCheck, ":")
