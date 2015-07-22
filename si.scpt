@@ -15,8 +15,8 @@ property ScriptHomepage : "https://raw.githubusercontent.com/Xeon3D/textual5-scr
 property ScriptAuthor : "Xeon3D"
 property ScriptContributors : "emsquare, pencil"
 property ScriptAuthorHomepage : "http://www.github.com/Xeon3D/"
-property CurrentVersion : "0.7.4"
-property CodeName : "Destroying Space"
+property CurrentVersion : "0.7.5"
+property CodeName : "The Woes of CoreStorage"
 property SupportChannel : "irc://irc.freenode.org/#textual"
 
 ---  Colors
@@ -118,6 +118,17 @@ on textualcmd(cmd)
 		on error
 			return "There was an error checking for the latest version. Check https://github.com/Xeon3D/textual5-scripts for updates"
 		end try
+		
+		if cmd contains "-f" then
+			try
+				do shell script "curl -o " & scriptLocation & " " & latestScriptlocation
+				set CheckUpdate to do shell script "cat " & scriptLocation & " | grep -m1 'property CurrentVersion'"
+				return "/echo Script Updated Sucessfully. Previous Version: " & CurrentVersion & ". Current Version: " & CheckUpdate
+			on error
+				return "/echo Error updating (forced) to the latest version. Check https://github.com/Xeon3D/textual5-scripts for updates"
+			end try
+		end if
+		
 		if latestversion > CurrentVersion then
 			try
 				do shell script "curl -o " & scriptLocation & " " & latestScriptlocation
@@ -404,7 +415,7 @@ on textualcmd(cmd)
 	--HDD
 	if ViewDisk then
 		if ViewFullDisk then
-			set diskQty to (count the paragraphs of (do shell script "diskutil list | grep '/dev/'")) as integer
+			set diskQty to (count the paragraphs of (do shell script "diskutil list | grep '/dev/' | grep 'Internal'")) as integer
 			--	set diskQty to 1
 			set currentDisk to -1
 			set DiskTotalSize to {}
@@ -443,8 +454,8 @@ on textualcmd(cmd)
 				set ApplePartCount to count the items of ApplePartList
 				repeat ApplePartCount times
 					set AppleCurrentPart to AppleCurrentPart + 1
-					set ApplePartFree to ApplePartFree + roundThis((my removetext(do shell script "diskutil info " & ApplePartList's item AppleCurrentPart & " | grep 'Volume Free Space' | awk '{print $(NF-4)}'", "(")) / 1.0E+9, 1)
-					set applePartTotal to applePartTotal + roundThis((my removetext(do shell script "diskutil info " & ApplePartList's item AppleCurrentPart & " | grep 'Total Size' | awk '{print $(NF-4)}'", "(")) / 1.0E+9, 1)
+					set ApplePartFree to ApplePartFree + roundThis((my removetext(do shell script "diskutil info " & ApplePartList's item AppleCurrentPart & " | grep -m1 'Volume Free Space' | awk '{print $(NF-4)}'", "(")) / 1.0E+9, 1)
+					set applePartTotal to applePartTotal + roundThis((my removetext(do shell script "diskutil info " & ApplePartList's item AppleCurrentPart & " | grep -m1 'Total Size' | awk '{print $(NF-4)}'", "(")) / 1.0E+9, 1)
 					set applePartUsed to applePartTotal - ApplePartFree
 				end repeat
 				
