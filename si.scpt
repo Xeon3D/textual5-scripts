@@ -429,17 +429,17 @@ on textualcmd(cmd)
 				set rundiskTypeCheck to my cutbackward(rundiskTypeCheck, ":")
 				set rundiskTypeCheck to my trim(rundiskTypeCheck)
 				if rundiskTypeCheck is "Yes" then
-					set disktype to "SSD"
+					set disktype to FBold & "SSD"
 				else
-					set disktype to "HDD"
+					set disktype to FBold & "HDD"
 				end if
 				--		set PartList to the paragraphs of (do shell script "diskutil list disk" & currentDisk & " | grep 'Apple_HFS' | grep 'GB'")
 				--		set PartCount to count the items of PartList
 				
 				if currentDisk is 0 then
-					set msg to msg & disktype & ": " & DiskTotalSize
+					set msg to msg & disktype & ": " & FBold & DiskTotalSize
 				else
-					set msg to msg & space & disktype & ": " & DiskTotalSize
+					set msg to msg & space & disktype & ": " & FBold & DiskTotalSize
 				end if
 				--	return msg
 				
