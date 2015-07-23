@@ -433,8 +433,8 @@ on textualcmd(cmd)
 				else
 					set disktype to "HDD"
 				end if
-				set PartList to the paragraphs of (do shell script "diskutil list disk" & currentDisk & " | grep 'GB' | tail -n +2")
-				set PartCount to count the items of PartList
+				--		set PartList to the paragraphs of (do shell script "diskutil list disk" & currentDisk & " | grep 'Apple_HFS' | grep 'GB'")
+				--		set PartCount to count the items of PartList
 				
 				if currentDisk is 0 then
 					set msg to msg & disktype & ": " & DiskTotalSize
