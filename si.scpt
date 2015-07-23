@@ -15,8 +15,8 @@ property ScriptHomepage : "https://raw.githubusercontent.com/Xeon3D/textual5-scr
 property ScriptAuthor : "Xeon3D"
 property ScriptContributors : "emsquare, pencil"
 property ScriptAuthorHomepage : "http://www.github.com/Xeon3D/"
-property CurrentVersion : "0.7.6"
-property CodeName : "Kill All The DMGs"
+property CurrentVersion : "0.7.7"
+property CodeName : "Chasing Tails"
 property SupportChannel : "irc://irc.freenode.org/#textual"
 
 ---  Colors
@@ -433,7 +433,7 @@ on textualcmd(cmd)
 				else
 					set disktype to "HDD"
 				end if
-				set PartList to the paragraphs 2 thru -1 of (do shell script "diskutil list disk" & currentDisk & " | grep 'GB'")
+				set PartList to the paragraphs of (do shell script "diskutil list disk" & currentDisk & " | grep 'GB' | tail -n +2")
 				set PartCount to count the items of PartList
 				
 				if currentDisk is 0 then
