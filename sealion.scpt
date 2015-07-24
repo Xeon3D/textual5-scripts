@@ -1,0 +1,1 @@
+-- Sealion Script by Xeon3D-- Idea from Alex Sørlieon textualcmd()	return "http://i.imgur.com/9VV5LB3.gif"end textualcmd
