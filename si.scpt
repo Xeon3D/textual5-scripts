@@ -15,8 +15,8 @@ property ScriptHomepage : "https://raw.githubusercontent.com/Xeon3D/textual5-scr
 property ScriptAuthor : "Xeon3D"
 property ScriptContributors : "emsquare, pencil"
 property ScriptAuthorHomepage : "http://www.github.com/Xeon3D/"
-property CurrentVersion : "0.7.7"
-property CodeName : "Chasing Tails"
+property CurrentVersion : "0.7.8"
+property CodeName : "Getting tastes..."
 property SupportChannel : "irc://irc.freenode.org/#textual"
 
 ---  Colors
@@ -108,6 +108,8 @@ on textualcmd(cmd)
 	
 	-- This sets the item delimiter.
 	set ItemDelimiter to " • "
+	-- Initializes user Preferences variable.
+	set userPrefs to ""
 	
 	if cmd contains "update" then
 		try
@@ -178,6 +180,61 @@ on textualcmd(cmd)
 		set ViewUptime to true
 		set ViewClient to true
 		set ViewScriptVersion to false
+		
+		-- reads preferences file and changes options accordingly.
+		try
+			set userPrefs to the paragraphs of (do shell script "cat " & the quoted form of (the POSIX path of (path to library folder from user domain) & "Application Scripts/com.codeux.irc.textual5/userPrefs"))
+			
+			if userPrefs contains "viewMac" then set ViewMac to true
+			if userPrefs does not contain "viewMac" then set ViewMac to false
+			if userPrefs contains "viewCpu" then set ViewCPU to true
+			if userPrefs does not contain "viewCpu" then set ViewCPU to false
+			if userPrefs contains "ViewCurrentCPUSpeed" then set ViewCurrentCPUSpeed to true
+			if userPrefs does not contain "ViewCurrentCPUSpeed" then set ViewCurrentCPUSpeed to false
+			if userPrefs contains "ViewCPUCapabilities" then set ViewCPUCapabilities to true
+			if userPrefs does not contain "ViewCPUCapabilities" then set ViewCPUCapabilities to false
+			if userPrefs contains "ViewCPUCache" then set ViewCPUCache to true
+			if userPrefs does not contain "ViewCPUCache" then set ViewCPUCache to false
+			if userPrefs contains "ViewRam" then set ViewRam to true
+			if userPrefs does not contain "ViewRam" then set ViewRam to false
+			if userPrefs contains "ViewBars" then set ViewBars to true
+			if userPrefs does not contain "ViewBars" then set ViewBars to false
+			if userPrefs contains "ViewDisk" then set ViewDisk to true
+			if userPrefs does not contain "ViewDisk" then set ViewDisk to false
+			if userPrefs contains "ViewFullDisk" then set ViewFullDisk to true
+			if userPrefs does not contain "ViewFullDisk" then set ViewFullDisk to false
+			if userPrefs contains "ViewBootCamp" then set ViewBootCamp to true
+			if userPrefs does not contain "ViewBootCamp" then set ViewBootCamp to false
+			if userPrefs contains "ViewDisplay" then set ViewDisplay to true
+			if userPrefs does not contain "ViewDisplay" then set ViewDisplay to false
+			if userPrefs contains "ViewGFXBus" then set ViewGFXBus to true
+			if userPrefs does not contain "ViewGFXBus" then set ViewGFXBus to false
+			if userPrefs contains "ViewResolutions" then set ViewResolutions to true
+			if userPrefs does not contain "ViewResolutions" then set ViewResolutions to false
+			if userPrefs contains "ViewAudio" then set ViewAudio to true
+			if userPrefs does not contain "ViewAudio" then set ViewAudio to false
+			if userPrefs contains "ViewPower" then set ViewPower to true
+			if userPrefs does not contain "ViewPower" then set ViewPower to false
+			if userPrefs contains "ViewOSXVersion" then set ViewOSXVersion to true
+			if userPrefs does not contain "ViewOSXVersion" then set ViewOSXVersion to false
+			if userPrefs contains "ViewOSXArch" then set ViewOSXArch to true
+			if userPrefs does not contain "ViewOSXArch" then set ViewOSXArch to false
+			if userPrefs contains "ViewOSXBuild" then set ViewOSXBuild to true
+			if userPrefs does not contain "ViewOSXBuild" then set ViewOSXBuild to false
+			if userPrefs contains "ViewKernel" then set ViewKernel to true
+			if userPrefs does not contain "ViewKernel" then set ViewKernel to false
+			if userPrefs contains "ViewKernelTag" then set ViewKernelTag to true
+			if userPrefs does not contain "ViewKernelTag" then set ViewKernelTag to false
+			if userPrefs contains "ViewUptime" then set ViewUptime to true
+			if userPrefs does not contain "ViewUptime" then set ViewUptime to false
+			if userPrefs contains "ViewClient" then set ViewClient to true
+			if userPrefs does not contain "ViewClient" then set ViewClient to false
+			if userPrefs contains "ViewScriptVersion" then set ViewScriptVersion to true
+			if userPrefs does not contain "ViewScriptVersion" then set ViewScriptVersion to false
+		end try
+		
+		
+		
 	else
 		---- Checks which options the user supplied at runtime and acts accordingly.
 		set ViewMac to (cmd contains "mac")
@@ -222,16 +279,6 @@ on textualcmd(cmd)
 			"/echo • Simple - Defines if the formatting is removed from the output of the script." & FBold & " - Current Status: " & FBold & CRed & Simple & NewLine
 		return msg
 		
-	end if
-	
-	if cmd is "HideLastDelimiter" then
-		if HideLastDelimiter is "True" then
-			set msg to "/echo The last dot (delimiter) is currently " & FBold & "NOT" & FBold & " being shown. To change this type '/" & scriptname & " HideLastDelimiter toggle'"
-			return msg
-		else if HideLastDelimiter is "False" then
-			set msg to "/echo The last dot (delimiter) is currently " & FBold & "BEING" & FBold & " shown. To change this type '/" & scriptname & " HideLastDelimiter toggle'"
-			return msg
-		end if
 	end if
 	
 	if cmd is "HideLastDelimiter toggle" then
