@@ -13,4 +13,5 @@ cd ~/Library/Application\ Scripts/com.codeux.irc.textual5/ && git pull
 
 Scripts whose name ends in 4 are not yet updated for Textual 5.
 
-Any questions: mail me @ xeon4d@gmail.com or pm me Xeon3D @ freenode.net (in #textual)
+The si script still has some bugs regarding HDD detection, but the scripts are not going to be supported nor worked on by me anymore. Feel free to fork them and edit them to your liking, just don't forget to name me anywhere in the script if you can...
+
