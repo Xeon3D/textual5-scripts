@@ -523,6 +523,10 @@ if ViewDisk then
 			if ViewBootCamp then
 				set WinPartList to the paragraphs of (do shell script "diskutil list disk" & currentDisk & "| grep 'GB' | grep 'Basic' | awk '{print $NF}'")
 				set WinPartCount to count the items of WinPartList
+				if WinPartCount is 0 then
+					set WinPartList to the paragraphs of (do shell script " diskutil list disk" & currentDisk & "| grep 'GB' | grep 'NTFS' | awk '{print $NF}'")
+					set WinPartCount to count the items of WinPartList
+				end if
 				repeat WinPartCount times
 					set WinCurrentPart to WinCurrentPart + 1
 					set WinPartFree to WinPartFree + roundThis((my removetext(do shell script "diskutil info " & WinPartList's item WinCurrentPart & " | grep 'Volume Free Space' | awk '{print $(NF-4)}'", "(")) / 1.0E+9, 1)
