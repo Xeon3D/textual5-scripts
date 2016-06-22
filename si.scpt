@@ -858,7 +858,11 @@ end if
 if ViewOSXVersion then
 	set AppleScript's text item delimiters to space
 	set OSXInfo to the paragraphs of (do shell script "sw_vers | awk -F\"\\t\" '/BuildVersion:|ProductVersion|ProductName/ {print $2}'")
-	set msg to msg & FBold & "OS: " & FBold & "OS X " & item 2 of OSXInfo & " "
+	if (do shell script "sw_vers -productVersion") > 10.11 then
+			set msg to msg & FBold & "OS: " & FBold & "macOS " & item 2 of OSXInfo & " "
+		else
+			set msg to msg & FBold & "OS: " & FBold & "OS X " & item 2 of OSXInfo & " "
+		end if
 	set AppleScript's text item delimiters to ""
 	if ViewOSXBuild then
 		set OSXBuild to "[" & item 3 of OSXInfo & "] "
