@@ -15,8 +15,8 @@ property ScriptHomepage : "https://raw.githubusercontent.com/Xeon3D/textual5-scr
 property ScriptAuthor : "Xeon3D"
 property ScriptContributors : "emsquare, pencil"
 property ScriptAuthorHomepage : "http://www.github.com/Xeon3D/"
-property CurrentVersion : "0.7.9"
-property CodeName : "iAdam1n is Nitpicky Limited Edition!"
+property CurrentVersion : "0.8.0"
+property CodeName : "I really need to redo this script"
 property SupportChannel : "irc://irc.freenode.org/#textual"
 
 ---  Colors
@@ -44,9 +44,9 @@ property FreeColor : CGreen
 property SeparatorColor : COrange
 
 -- | DEBUG COMMAND | --
---set cmd to "all"
+set cmd to ""
 
-on textualcmd(cmd)
+-- on textualcmd(cmd)
 -- |Variables| --
 
 -- Defines the name of the application that's running si
@@ -471,7 +471,11 @@ if ViewDisk then
 			if (do shell script "diskutil info /dev/disk" & currentDisk & " | grep 'Protocol:'") contains "Disk Image" then exit repeat
 			if (do shell script "diskutil info /dev/disk" & currentDisk & " | grep 'Protocol:'") contains "USB" then exit repeat
 			set rundiskSizeCheck to (do shell script "diskutil info /dev/disk" & currentDisk & "| grep 'Total Size:'") as string
-			set rundiskTypeCheck to (do shell script "diskutil info /dev/disk" & currentDisk & "| grep 'Solid State:'") as string
+			try
+				set rundiskTypeCheck to (do shell script "diskutil info /dev/disk" & currentDisk & "| grep 'Solid State:'") as string
+			on error
+				set rundiskTypeCheck to "No"
+			end try
 			set rundiskSizeCheck to my cutbackward(rundiskSizeCheck, ":")
 			set DiskTotalSize to my trim(my cutforward(rundiskSizeCheck, "("))
 			set rundiskTypeCheck to my cutbackward(rundiskTypeCheck, ":")
@@ -499,7 +503,7 @@ if ViewDisk then
 			set WinPartFree to ""
 			set WinPartUsed to ""
 			set WinPartTotal to ""
-			set ApplePartList to the paragraphs of (do shell script "diskutil list disk" & currentDisk & "| grep 'GB' | grep 'Apple_HFS' | awk '{print $NF}'")
+			set ApplePartList to the paragraphs of (do shell script "diskutil list disk" & currentDisk & " | grep 'Apple_HFS' | awk '{print $NF}'")
 			set ApplePartCount to count the items of ApplePartList
 			repeat ApplePartCount times
 				set AppleCurrentPart to AppleCurrentPart + 1
@@ -933,7 +937,7 @@ end if
 
 return msg
 
-end textualcmd
+--end textualcmd
 
 on cutforward(orig, ponto)
 	if orig contains ponto then
